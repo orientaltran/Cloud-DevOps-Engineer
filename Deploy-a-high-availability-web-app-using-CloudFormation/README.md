@@ -1,22 +1,22 @@
+# CD12352 - Infrastructure as Code Project Solution
 # Solution Diagram
 The Udagram solution diagram is available at /diagram
 ![diagram](./diagram/Diagram.png)
 
-# CloudFormation Networking Resources
+# Networking Resources
 Networking resouces: ./network/network.yml
 Parameters : ./network/network-parameters.json
 
-# CloudFormation Static Resources
+# Static Resources
 Static resouces: ./static/static.yml
 Parameters: ./stattic/static-parameters.json
 
-# CloudFormation Apllication Resources
+# Apllication Resources
 Application resouces: ./apllication/udagram.yml
 parameters: ./apllication/udagram-parameters.json
 
-
 # sh
-there are 4 sh :
+Commend run sh :
 ###
 ```sh sh/create.sh <stack-name> <stack-template.yml> <stack-template-params.json>```
 ###
@@ -53,11 +53,11 @@ there are 4 sh :
 ###
 ```sh sh/deploy.sh <local-file-path> <resource-name>```
 ###
-```sh sh/deploy.sh server-content/index.html stagging-s3-bucket-1```
+```sh sh/deploy.sh server-content/index.html stagging-s3-bucket-ops```
 ###
 IMPORTANT : 
-1. the stack-name should be unique
-2. the order is important to follow, create first the network infrastructre then the static infrastructure and in last the application infrastructure.
+1. The stack-name should be unique
+2. The order is important to follow, create first the network infrastructre then the static infrastructure and in last the application infrastructure.
 
 # Output URL
-the URL value is desplayed in the outputs of udagram stack, the key is WebsiteURL, for this stack this is the URL : http://udagr-webap-fkoy7kgn0am4-809098053.us-east-1.elb.amazonaws.com/
+The URL value is desplayed in the outputs of udagram stack, the key is WebsiteURL, for this stack This is the URL : http://udagr-webap-fkoy7kgn0am4-809098053.us-east-1.elb.amazonaws.com/

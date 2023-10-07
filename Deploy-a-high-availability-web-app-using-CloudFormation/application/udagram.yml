@@ -55,8 +55,8 @@ Resources:
             sudo apt-get update -y
             sudo apt-get install nginx -y
             sudo service nginx start
-            sudo wget -O /var/www/html/index.nginx-debian.html https://stagging-s3-bucket-1.s3.amazonaws.com/index.html
-        ImageId: ami-0af9d24bd5539d7af
+            sudo wget -O /var/www/html/index.nginx-debian.html https://stagging-s3-bucket-ops.s3.amazonaws.com/index.html
+        ImageId: ami-0557a15b87f6559cf
         KeyName: last-ec2
         SecurityGroupIds:
           - !Ref WebServerSecGroup
