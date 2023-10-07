@@ -1,6 +1,7 @@
-Description: this template describe UDAGRAM servers infrastructure
+Description: CD12352 - Infrastructure as Code Project - Udagram
 
 Parameters:
+# Add your parameters here
   EnvName:
     Description: A project environnment name
     Type: String

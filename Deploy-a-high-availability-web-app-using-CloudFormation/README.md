@@ -3,15 +3,16 @@ The Udagram solution diagram is available at /diagram
 ![diagram](./diagram/Diagram.png)
 
 # CloudFormation Networking Resources
-Cloud formation networking resouces: network.yml
-Parameters paramester: network-parameters.json
+Networking resouces: ./network/network.yml
+Parameters : ./network/network-parameters.json
 
 # CloudFormation Static Resources
-Cloud formation static resouces are exposed in static.yml file, parameters are exposed in static-parameters.json
-
+Static resouces: ./static/static.yml
+Parameters: ./stattic/static-parameters.json
 
 # CloudFormation Apllication Resources
-Cloud formation application resouces are exposed in udagram.yml file, parameters are exposed in udagram-parameters.json
+Application resouces: ./apllication/udagram.yml
+parameters: ./apllication/udagram-parameters.json
 
 
 # sh

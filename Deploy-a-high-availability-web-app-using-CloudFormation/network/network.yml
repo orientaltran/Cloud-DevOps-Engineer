@@ -1,5 +1,8 @@
-Description: this template describe UDAGRAM network infrastructure
 
+Description: CD12352 - Infrastructure as Code Project - Network
+
+Parameters:
+  # Add your parameters here
 Parameters:
   EnvName:
     Description: A project environnment name
@@ -24,6 +27,7 @@ Parameters:
     Type: String
 
 Resources:
+  # Add your resources here
   VPC:
     Type: AWS::EC2::VPC
     Properties:
