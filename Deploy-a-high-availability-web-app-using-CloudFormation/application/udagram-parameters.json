@@ -1,0 +1,14 @@
+[
+    {
+        "ParameterKey": "EnvName",
+        "ParameterValue": "stagging"
+    },
+    {
+        "ParameterKey": "ProjectName",
+        "ParameterValue": "UDAGRAM"
+    },
+    {
+        "ParameterKey": "CidrAllIp",
+        "ParameterValue": "0.0.0.0/0"
+    }
+]

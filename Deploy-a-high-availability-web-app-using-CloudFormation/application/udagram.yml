@@ -1,0 +1,137 @@
+Description: this template describe UDAGRAM servers infrastructure
+
+Parameters:
+  EnvName:
+    Description: A project environnment name
+    Type: String
+  ProjectName:
+    Description: A project project name
+    Type: String
+  CidrAllIp:
+    Description: A range of IP addresses that covers all possible IP addresses
+    Type: String
+
+Resources:
+  LBSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http access to udagram load balancer
+      VpcId:
+        Fn::ImportValue:
+          !Sub "${ProjectName}-${EnvName}-VPCID"
+      SecurityGroupIngress:
+        IpProtocol: 'tcp'
+        FromPort: 80
+        ToPort: 80
+        CidrIp: '0.0.0.0/0'
+      SecurityGroupEgress:
+        IpProtocol: 'tcp'
+        FromPort: 0
+        ToPort: 65535
+        CidrIp: '0.0.0.0/0'
+
+  WebServerSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http access to udagram hosts from the LB Security Group
+      VpcId:
+        Fn::ImportValue:
+          !Sub "${ProjectName}-${EnvName}-VPCID"
+      SecurityGroupIngress:
+      - IpProtocol: 'tcp'
+        FromPort: 80
+        ToPort: 80
+        SourceSecurityGroupId: !Ref LBSecGroup
+
+  WebAppLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties: 
+      LaunchTemplateName: !Sub "${ProjectName}-${EnvName}-web-servers"
+      LaunchTemplateData:
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            sudo apt-get update -y
+            sudo apt-get install nginx -y
+            sudo service nginx start
+            sudo wget -O /var/www/html/index.nginx-debian.html https://stagging-s3-bucket-1.s3.amazonaws.com/index.html
+        ImageId: ami-0af9d24bd5539d7af
+        KeyName: last-ec2
+        SecurityGroupIds:
+          - !Ref WebServerSecGroup
+        InstanceType: t2.micro
+        BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:
+            VolumeSize: '10'
+        IamInstanceProfile:
+          Arn:
+            Fn::ImportValue:
+              !Sub "${ProjectName}-${EnvName}-WAIP"
+
+  WebAppTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 8
+      HealthyThresholdCount: 2
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VpcId: 
+        Fn::ImportValue:
+          Fn::Sub: "${ProjectName}-${EnvName}-VPCID"
+
+  WebAppGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+      - Fn::ImportValue: 
+          !Sub "${ProjectName}-${EnvName}-PRIV-NETS"
+      LaunchTemplate:
+        LaunchTemplateId: !Ref WebAppLaunchTemplate
+        Version: !GetAtt WebAppLaunchTemplate.LatestVersionNumber
+      MinSize: '1'
+      DesiredCapacity: '1'
+      MaxSize: '4'
+      TargetGroupARNs:
+      - Ref: WebAppTargetGroup
+
+  WebAppLB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+      - Fn::ImportValue: !Sub "${ProjectName}-${EnvName}-PUBS1"
+      - Fn::ImportValue: !Sub "${ProjectName}-${EnvName}-PUBS2"
+      SecurityGroups:
+      - Ref: LBSecGroup
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref WebAppLB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref WebAppTargetGroup
+
+  ALBListenerRule:
+      Type: AWS::ElasticLoadBalancingV2::ListenerRule
+      Properties:
+        Actions:
+        - Type: forward
+          TargetGroupArn: !Ref WebAppTargetGroup
+        Conditions:
+        - Field: path-pattern
+          Values: [/]
+        ListenerArn: !Ref Listener
+        Priority: 1
+
+Outputs:
+  WebsiteURL:
+    Description: URL of the web application
+    Value: !Sub "http://${WebAppLB.DNSName}"
+  

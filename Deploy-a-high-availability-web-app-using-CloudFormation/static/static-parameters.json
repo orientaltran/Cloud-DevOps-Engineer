@@ -1,0 +1,10 @@
+[
+    {
+        "ParameterKey": "EnvName",
+        "ParameterValue": "stagging"
+    },
+    {
+        "ParameterKey": "ProjectName",
+        "ParameterValue": "UDAGRAM"
+    }
+]
