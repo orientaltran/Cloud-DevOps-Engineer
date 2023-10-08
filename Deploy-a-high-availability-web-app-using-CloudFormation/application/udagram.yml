@@ -66,9 +66,7 @@ Resources:
           Ebs:
             VolumeSize: '10'
         IamInstanceProfile:
-          Arn:
-            Fn::ImportValue:
-              !Sub "${ProjectName}-${EnvName}-WAIP"
+          Name: !Sub "${ProjectName}-${EnvName}-WAIP"
 
   WebAppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
