@@ -1,4 +1,4 @@
-# Coworking Space Service Extension
+# Coworking Space Service Step
 
 ## Deployment database
 ### **Deploy postgresql through helm**
@@ -11,7 +11,7 @@ helm install postgresql bitnami/postgresql --set primary.persistence.enabled=fal
 - After installing helm chart to `eks` successfully. Run the bellow command instruction to initiate database schema and data
 ```sh
 # goto db folder
-cd ../db
+cd db
 
 kubectl port-forward --namespace default svc/postgresql 5432:5432
 PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432 < 1_create_tables.sql
