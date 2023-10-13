@@ -31,5 +31,5 @@ phases:
       - sed -i -e "s|<CONTAINER_IMAGE_NAME>|`echo ${IMAGE_URI}`|g" deployment.yaml
       - cat deployment.yaml
       - echo Updating eks deployment...
-      - aws eks update-kubeconfig --name ops-prj3 --verbose
+      - aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --verbose
       - kubectl apply -f .
