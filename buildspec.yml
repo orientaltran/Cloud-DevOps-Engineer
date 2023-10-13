@@ -30,5 +30,5 @@ phases:
       - sed -i -e "s|<CONTAINER_IMAGE_NAME>|`echo ${IMAGE_URI}`|g" deployment.yaml
       - cat deployment.yaml
       - echo Updating eks deployment...
-      - aws eks update-kubeconfig --name $IMAGE_REPO_NAME --verbose
+      - aws eks update-kubeconfig --name $KUBE_NAME --verbose
       - kubectl apply -f .
