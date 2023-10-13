@@ -1,19 +1,13 @@
-# Use an official Python runtime as a parent image
-FROM public.ecr.aws/docker/library/python:3.10-alpine
+FROM python:3.11.5-bookworm
 
-# Set the working directory to /app
-RUN mkdir /app
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
 COPY . /app
 
-# Install any needed packages specified in requirements.txt
-RUN adduser -u 1000 -D app
-USER app
-COPY . /app
-RUN pip install -r requirements.txt
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
-# Run app.py when the container launches
-CMD python app.py
+EXPOSE 80
 
+ENV NAME World
+
+CMD ["python", "app.py"]

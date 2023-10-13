@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: prj3-coworking
+  name: prj3-coworking
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: "TCP"
+      port: 5153
+      targetPort: 5153
+  selector:
+    service: prj3-coworking
