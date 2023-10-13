@@ -27,7 +27,7 @@ PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p
 please refer to [buildspec.yaml](./buildspec.yml)
 </br> or you can deploy from your local pc by using the bellow command
 ```sh
-cd deployment
+cd deployments
 # update kubectl config
 aws eks update-kubeconfig --name <<YOUR_CLUSTER>> --verbose
 
