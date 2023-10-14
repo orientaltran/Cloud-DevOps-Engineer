@@ -10,80 +10,39 @@ This service follows a microservice pattern and the APIs are split into distinct
 For this project, you are a DevOps engineer who will be collaborating with a team that is building an API for business analysts. The API provides business analysts with basic analytics data on user activity in the coworking space service. The application they provide you functions as expected, and you will help build a pipeline to deploy it to Kubernetes.
 
 ## Getting Started
-
-Start by cloning the starter repository for the project.
-
-### Project Dependencies
-
-You'll need a workspace for this project. You can use the workspace in the classroom on the following pages, or you can complete the project using your local computer.
-
-### Workspace Environment Requirements
-
-You'll need these tools to compete this project. If you are using the Udacity workspace on the following pages, all of these tools are installed and provided in the workspace.
-
-If you're using your own local computer, you'll need:
-
-- Python Environment - run Python 3.6+ applications and install Python dependencies via pip
-- Docker CLI - build and run Docker images locally
-- kubectl - run commands against a Kubernetes cluster
-- helm - apply Helm Charts to a Kubernetes cluster
-- GitHub - pull and clone code
-
-### Remote Resource Requirements
-
-This project utilizes Amazon Web Services (AWS). You'll find instructions for using a temporary AWS account on the next page. The AWS resources you'll need to use for the project include:
-
-- AWS CLI
-- AWS CodeBuild - build Docker images remotely
-- AWS ECR - host Docker images
-- Kubernetes Environment with AWS EKS - run applications in k8s
-- AWS CloudWatch - monitor activity and logs in EKS
-
-## Project Instructions
-
-### Dependencies
-
-- [AWS Account](https://aws.amazon.com/)
-- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-- [Terraform](https://developer.hashicorp.com/terraform/downloads?product_intent=terraform)
-- [Helm Chart](https://helm.sh/docs/intro/install/)
-- [PostgresSQL](https://www.postgresql.org/download/)
-- [Minikube](https://github.com/kubernetes/minikube)
-- [VSCode](https://code.visualstudio.com/)
-
-### Clone the project
-
-1. Clone Project Code
-
-   ```
-   git clone https://github.com/congdinh2008/aws-cloud-devops-udacity-prj3-microservice.git
-   ```
-
-### Project Structure
-
-1. [.bin](https://github.com/congdinh2008/aws-cloud-devops-udacity-prj3-microservice/tree/main/.bin): Bash file to complete project
-2. [db](https://github.com/congdinh2008/aws-cloud-devops-udacity-prj3-microservice/tree/main/db): Scripts to seed data
-3. [deployment](https://github.com/congdinh2008/aws-cloud-devops-udacity-prj3-microservice/tree/main/deployment): Kubernetes yaml files
-4. [terraform](https://github.com/congdinh2008/aws-cloud-devops-udacity-prj3-microservice/tree/main/terraform): Terraform file to create AWS resource
-5. [screenshots](https://github.com/congdinh2008/aws-cloud-devops-udacity-prj3-microservice/tree/main/screenshots): Screenshots
-
-### How to run
-
-1. Create AWS resource with terraform
-2. Config Kubect with EKS Cluster Name
-3. Set up PostgreSQL with Helm Chart
-4. Seed data using kubectl port-forward and psql
-5. Create AWS CodePipeline to build and push image to AWS ECR
-6. Create a service and deployment yaml files to deploy web api
-7. Apply configmap, secret, service and deployment yaml files
-8. Create an external load balancer using kubectl expose
-9. Check web api
-10. Check logs from CloudWatch and kubectl logs pod-name
-
-You can use the following command to do:
-
+## Deployment database
+### **Deploy postgresql through helm**
+```sh
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install postgresql bitnami/postgresql --set primary.persistence.enabled=false --set postgresqlPassword=postgres
 ```
-make start
+
+### **Initiate database**
+- After installing helm chart to `eks` successfully. Run the bellow command instruction to initiate database schema and data
+```sh
+# Go to db folder
+cd db
+
+kubectl port-forward --namespace default svc/postgresql 5432:5432
+PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432 < 1_create_tables.sql
+PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432 < 2_seed_users.sql
+PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432 < 3_seed_tokens.sql
+```
+
+## Deployment Application
+- build and push docker image to `AWS ECR` through `AWS CodeBuild`
+- Application will be deployed to `AWS EKS`
+- Every time there is a commit to `main` branch and file in `analytics` folder was changed, sourcecode will be build and deploy to `eks` </br>
+please refer to [buildspec.yaml](./buildspec.yml)
+</br> or you can deploy from your local pc by using the bellow command
+```sh
+# update kubectl config: aws eks update-kubeconfig --name <<YOUR_CLUSTER>> --verbose
+sh ./sh/eks_config.sh ops-prj3
+
+# run deployment to eks cluster
+sh ./sh/eks_deploy.sh
+# expose deployment
+sh ./sh/expose.sh
 ```
 
 ### CloudWatch Metrics in EKS
@@ -114,40 +73,3 @@ CloudWatch insights are easy to configure on your cluster.
 This will install CloudWatch insights into the namespace amazon-cloudwatch on your cluster.
 
 After this is configured, you can navigate to CloudWatch in the AWS console to access CloudWatch Insights.
-
-### Get Web API URL
-
-1. Get load balancer external ip
-
-   ```
-   kubectl get svc
-   ```
-
-<img src="./screenshots/kubectl_get_publicbackend_load_balancer_external_ip.png">
-
-### Result
-
-1. Web API
-
-<img src="./screenshots/test_api_load_balancer_external_ip_daily_usage.png">
-
-<img src="./screenshots/test_api_load_balancer_external_ip_user_visits.png">
-
-2. CloudWatch
-
-<img src="./screenshots_feedback/CloudWatch_log_container_insights_application.png">
-<img src="./screenshots_feedback/CloudWatch_log_container_insights_application_log_stream.png">
-
-1. Kubectl logs pod
-
-<img src="./screenshots/EKS_logs_pods_request_result_with_data.png">
-
-<img src="./screenshots/EKS_logs_pods_request_result_with_data_2.png">
-
-### Delete Resource
-
-1. Run the following command to delete all resource with terraform
-
-   ```
-   make delete
-   ```
